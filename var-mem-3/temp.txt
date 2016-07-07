@@ -1,0 +1,61 @@
+xl create /etc/xen/mem_test1k.cfg -c
+Start measurement
+Xen Minimal OS!
+  start_info: 0x2dc000(VA)
+    nr_pages: 0x3e800
+  shared_inf: 0x93db4000(MA)
+     pt_base: 0x2df000(VA)
+nr_pt_frames: 0x5
+    mfn_list: 0xe8000(VA)
+   mod_start: 0x0(VA)
+     mod_len: 0
+       flags: 0x0
+    cmd_line: 
+       stack: 0xa6b00-0xc6b00
+MM: Init
+      _text: 0x0(VA)
+     _etext: 0x77d94(VA)
+   _erodata: 0x8f000(VA)
+     _edata: 0x90c40(VA)
+stack start: 0xa6b00(VA)
+       _end: 0xe7448(VA)
+  start_pfn: 2e7
+    max_pfn: 3e800
+Mapping memory range 0x2e7000 - 0x3e800000
+setting 0x0-0x8f000 readonly
+skipped 1000
+MM: Initialise page allocator for 4d9000(4d9000)-3e800000(3e800000)
+MM: done
+Demand map pfns at 3e801000-0x203e801000.
+Heap resides at 203e802000-403e802000.
+Initialising timer interface
+Initialising console ... done.
+gnttab_table mapped at 0x3e801000.
+Initialising scheduler
+Thread "Idle": pointer: 0x0x203e802050, stack: 0x0x6e0000
+Thread "xenstore": pointer: 0x0x203e802800, stack: 0x0x6f0000
+xenbus initialised on irq 1 mfn 0x91add
+start_kernel() is call
+Thread "shutdown": pointer: 0x0x203e802fb0, stack: 0x0x700000
+Desired Time is: 945543021 us
+main.c: dummy main: start_info=0xc6c20
+Thread "main": pointer: 0x0x203e803760, stack: 0x0x710000
+[main] Waiting for network.
+************************ NETFRONT for device/vif/0 **********
+
+
+net TX ring size 256
+net RX ring size 256
+Failed to read device/vif/0/backend-id.
+Abort transaction writing tx ring-ref
+[main] IP 0 netmask 0 gateway 0.
+[main] TCP/IP bringup begins.
+Thread "tcpip_thread": pointer: 0x0x203e804150, stack: 0x0x720000
+[tcpip_thread] TCP/IP bringup ends.
+[main] Network is ready.
+"main" 
+ The final page index is: 125000 / 125000
+close(0)
+close(1)
+close(2)
+main returned 0
