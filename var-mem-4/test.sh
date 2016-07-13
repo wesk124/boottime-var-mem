@@ -1,53 +1,71 @@
-#!/bin/sh
+#/bin/sh
 
-# Declare variables
+# Declare varibales of running unikernel's configs
 
-COUNT_OF_CONFIGS=$1
-INTER_TIME=$2
+COUNT_OF_RUNNING_UNIKERNELS=$1
 CURR_DIR=`pwd`
 
-VAR_KERNEL="$CURR_DIR/mini-os.gz"
-VAR_DESTRO="destroy"
-VAR_MEMORY="30"
-VAR_VCPU="1"
+VAR_RUNNING_KERNEL="$CURR_DIR/running-unikernel/mini-os.gz"
+VAR_RUNNING_DESTRO="destroy"
+VAR_RUNNING_MEMORY="16"
+VAR_RUNNING_VCPU="1"
 
-if [ ! $# == "2" ]; then
-	echo "Usage: $0 <max num. of unikernels> <time between xl creates (s)>"
+
+# Declare varibales of boot unikernel's configs
+
+VAR_BOOT_KERNEL="$CURR_DIR/boot-unikernel/mini-os.gz"
+VAR_BOOT_DESTRO="destroy"
+VAR_BOOT_MEMORY="16"
+VAR_BOOT_VCPU="1"
+
+
+# check num of cml var
+if [ ! $# == "1" ]; then
+	echo "Usage: $0 <max num. of unikernels>"
 	exit
 fi
 
+# check permission
 if [ ! `whoami` == "root" ]; then
 	echo "Please run as root"
 	exit
 fi
 
-# generating the configure files
-for i in `seq 0 $COUNT_OF_CONFIGS`; do
-	target=/etc/xen/test_app$i.cfg
+
+# generate boot unikernel configs
+target0=/etc/xen/boot_app.cfg
+echo -n "" > $target0
+echo "kernel=\"$VAR_BOOT_KERNEL\"" >> $target0
+echo "memory=$VAR_BOOT_MEMORY" >> $target0
+echo "vcpus=$VAR_BOOT_VCPU" >> $target0
+echo "name=\"boot_app\"" >> $target0
+echo "on_crash=\"$VAR_BOOT_DESTRO\"" >> $target0
+
+xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4
+wait
+
+# generate running unikernel configs
+for i in `seq 0 $COUNT_OF_RUNNING_UNIKERNELS`; do
+	target=/etc/xen/running_app$i.cfg
 	echo -n "" > $target
-	echo "kernel=\"$VAR_KERNEL\"" >> $target
-	echo "memory=$VAR_MEMORY" >> $target
-	echo "vcpus=$VAR_VCPU" >> $target
-	echo "name=\"test_app$i\"" >> $target
-	echo "on_crash=\"$VAR_DESTRO\"" >> $target
+	echo "kernel=\"$VAR_RUNNING_KERNEL\"" >> $target
+	echo "memory=$VAR_RUNNING_MEMORY" >> $target
+	echo "vcpus=$VAR_RUNNING_VCPU" >> $target
+	echo "name=\"running_app$i\"" >> $target
+	echo "on_crash=\"$VAR_RUNNING_DESTRO\"" >> $target
 done
 
-# Reset result file
-echo -n "" > data.txt
-
-# Main loop of the experiment
-for i in `seq 0 $COUNT_OF_CONFIGS`; do
-	# Write in the target appiliance boot time
-	VAR_RESULT=$(chrono xl create /etc/xen/test_app$i.cfg)
-	echo $i $VAR_RESULT >> data.txt 
-	echo "done $i/$COUNT_OF_CONFIGS"
-	sleep $2
+for i in `seq 0 $COUNT_OF_RUNNING_UNIKERNELS`; do
+    sleep 3
+    xl create /etc/xen/running_app$i.cfg -q&
+    wait
+    xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4
 done
+wait
 
-# Destroy all appliances and remove all configure files
+xl shutdown -a
 
-for i in `seq 0 $COUNT_OF_CONFIGS`; do 
-	xl destroy test_app$i
-	rm /etc/xen/test_app$i.cfg
-	echo "destroyed $i/$COUNT_OF_CONFIGS"
-done
+
+
+
+
