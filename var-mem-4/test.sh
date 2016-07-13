@@ -41,11 +41,18 @@ echo "vcpus=$VAR_BOOT_VCPU" >> $target0
 echo "name=\"boot_app\"" >> $target0
 echo "on_crash=\"$VAR_BOOT_DESTRO\"" >> $target0
 
-xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4
+# Reset data file
+
+echo -n "" > data.txt
+
+echo  "0" $(xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4) >> data.txt
+
 wait
 
+echo done 0 / $COUNT_OF_RUNNING_UNIKERNELS
+
 # generate running unikernel configs
-for i in `seq 0 $COUNT_OF_RUNNING_UNIKERNELS`; do
+for i in `seq 1 $COUNT_OF_RUNNING_UNIKERNELS`; do
 	target=/etc/xen/running_app$i.cfg
 	echo -n "" > $target
 	echo "kernel=\"$VAR_RUNNING_KERNEL\"" >> $target
@@ -55,11 +62,12 @@ for i in `seq 0 $COUNT_OF_RUNNING_UNIKERNELS`; do
 	echo "on_crash=\"$VAR_RUNNING_DESTRO\"" >> $target
 done
 
-for i in `seq 0 $COUNT_OF_RUNNING_UNIKERNELS`; do
-    sleep 3
+for i in `seq 1 $COUNT_OF_RUNNING_UNIKERNELS`; do
     xl create /etc/xen/running_app$i.cfg -q&
     wait
-    xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4
+    echo $((i)) $(xl create /etc/xen/boot_app.cfg -c -q | grep "time is:" | cut -d " " -f 4) >> data.txt
+
+    echo done $((i)) / $COUNT_OF_RUNNING_UNIKERNELS     
 done
 wait
 
