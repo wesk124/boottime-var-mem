@@ -40,7 +40,7 @@ for i in `seq 1 $1 `;do
     sleep 3
 
     echo "microsec of usleep(): "$i >> cpu-log.dat
-    xentop -b -i 10 | grep Mini | awk '{print $4}' >> cpu-log.dat
+    xentop -b -i 11 | grep Mini | awk '{if(NR > 1) {print $4}}' >> cpu-log.dat
 
 
     # Cleanup the xenstore
