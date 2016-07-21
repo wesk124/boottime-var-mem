@@ -39,7 +39,7 @@ for i in `seq 1 $1 `;do
 
     sleep 3
 
-    echo "mirosec of usleep(): " $i >> cpu-log.dat
+    echo "microsec of usleep(): "$i >> cpu-log.dat
     xentop -b -i 10 | grep Mini | awk '{print $4}' >> cpu-log.dat
 
 
