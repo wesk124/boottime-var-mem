@@ -31,13 +31,8 @@ for i in `seq 1 $1 `;do
     sleep 3
 
     echo -n "" > cpu-log.dat
-    #echo "$i" >> cpu-log.dat
     xentop -b -i $(($2+1)) | grep Mini | awk '{if(NR > 1) {print $4}}' >> cpu-log.dat 
-    echo "microsec: " $i >> avg-stddev.dat
-    echo "average: " >> avg-stddev.dat
-    awk '{if(NR >= 1) {sum += $1}} END {print sum/ NR }' cpu-log.dat >> avg-stddev.dat
-    echo "standard deviation: " >> avg-stddev.dat
-    awk '{if(NR >= 1) {sum += $1; sumsq +=$1*$1}} END {print sqrt(sumsq/NR - (sum/NR)**2)}' cpu-log.dat >> avg-stddev.dat
+    awk -v microsec=$i '{if(NR >= 1) {sum += $1; sumsq +=$1*$1}} END {print microsec "," sum/NR "," sqrt(sumsq/NR - (sum/NR)**2)}' cpu-log.dat >> avg-stddev.dat
 
 
     # Cleanup the xenstore
