@@ -17,3 +17,6 @@ memory = 1024
 name = "Mini-OS"
 
 on_crash = 'destroy'
+
+cpus="3"
+
