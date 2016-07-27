@@ -1,6 +1,7 @@
+XEN_SRC_DIR=/root/xen
 SRC=main.c
-
-include ../../Config.mk
+ARCH=x86_64
+XEN_CONFIG=domain_config.xl
 
 all:
 	make -C $(XEN_SRC_DIR)/stubdom/c clean
@@ -8,5 +9,8 @@ all:
 	make -C $(XEN_SRC_DIR)/stubdom c-stubdom
 	cp -f $(XEN_SRC_DIR)/stubdom/mini-os-x86_64-c/mini-os.gz .
 
+run: mini-os.gz
+	xl create $(XEN_CONFIG) -q
+	
 clean:
 	rm -rf mini-os.gz
